@@ -16,7 +16,7 @@
   }
 }
 
-body {
+/* body {
   color: rgb(var(--foreground-rgb));
   background: linear-gradient(
       to bottom,
@@ -101,4 +101,4 @@ li {
 
 .container p {
   padding: 8px 0;
-}
+} */

@@ -1,14 +1,28 @@
+import { Button, Center, Container, Flex } from '@mantine/core';
 import Link from 'next/link';
 
 export default function HomePage() {
-   return (
-    <main>
-      <div className='container'>
-        <h1>Quiz App</h1>
-        <Link href='/quiz'>
-          <button>Start Quiz</button>
-        </Link>
-      </div>
-    </main>
+  return (
+    <Container>
+      <Center>
+        <Flex
+          direction={{ base: 'column', sm: 'column' }}
+          gap={{ base: 'sm', sm: 'lg' }}
+          justify={{ sm: 'center' }}
+        >
+          <Link href='/quiz'>
+            <Button fullWidth variant="default" size="md">
+              Start Answering Questions
+            </Button>
+          </Link>
+          <Link href='/upload'>
+            <Button fullWidth variant="default" size="md">
+              Upload Questions
+            </Button>
+          </Link>
+        </Flex>
+      </Center>
+    </Container>
+
   );
 }
