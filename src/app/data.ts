@@ -5,7 +5,7 @@ export const quiz = {
   questions: [
     {
       id: 1,
-      question: 'What is the capital of France?',
+      question: 'What is the capital of France? jajhssss u;ahhhhhhhhhh u;qweeeeeeeeeeee hleeeeeeeeeeeeeeee  ulqwuddddddddddddddddlulb hshluduasdudedjdhud7e dudhedundu hudwu',
       answers: ['Madrid', 'Paris', 'Rome', 'Berlin'],
       correctAnswer: 'Paris',
     },
