@@ -1,10 +1,13 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router'
+import { Container, SimpleGrid, Skeleton, useMantineTheme, Grid, rem, Box } from '@mantine/core';
 
 import { papers } from '../../app/data';
 import { IExam, IQuestion } from '@/utils/interfaces';
-import { Skeleton } from '@mantine/core';
+import { ExamStats } from '@/app/components/ExamInfo';
+
+const PRIMARY_COL_HEIGHT = rem(300);
 
 const Page = () => {
   const router = useRouter()
@@ -62,19 +65,14 @@ const Page = () => {
     setChecked(false);
   };
 
-  return (
-    <div className='container'>
-      {exam && exam?.id ?
-        (<>
-          <h1>Quiz Page</h1>
-          <div>
-            <h2>
-              Question: {activeQuestion + 1}
-              <span>/{exam?.questions.length}</span>
-            </h2>
-          </div>
-          <div>
+  const theme = useMantineTheme();
+  const SECONDARY_COL_HEIGHT = `calc(${PRIMARY_COL_HEIGHT} / 2 - ${theme.spacing.md} / 2)`;
 
+  return (
+    <Container my="md">
+      {exam && exam?.id ?
+        <SimpleGrid cols={2} spacing="md" breakpoints={[{ maxWidth: 'sm', cols: 1 }]}>
+          <div>
             {
               !showResult ? (
                 <div className='quiz-container'>
@@ -121,14 +119,31 @@ const Page = () => {
                 </div>
               )}
           </div>
-        </>)
+          <Grid gutter="md">
+            <Grid.Col>
+              <ExamStats
+                title={exam?.subject}
+                total={exam?.questions.length}
+                completed={activeQuestion}
+                stats={[{ value: exam.questions.length, label: 'Total Questions' }]}
+                duration={exam.duration}
+              />
+            </Grid.Col>
+            <Grid.Col>
+              <Skeleton height={SECONDARY_COL_HEIGHT} radius="md" animate={false} />
+            </Grid.Col>
+          </Grid>
+        </SimpleGrid>
+
         : <>
-          <Skeleton height={50} circle mb="xl" />
-          <Skeleton height={8} radius="xl" />
-          <Skeleton height={8} mt={6} radius="xl" />
-          <Skeleton height={8} mt={6} width="70%" radius="xl" />
+          <Skeleton height={50} animate={true} circle mb="xl" />
+          <Skeleton height={8} animate={true} radius="xl" />
+          <Skeleton height={8} animate={true} mt={6} radius="xl" />
+          <Skeleton height={8} mt={6} animate={true} width="70%" radius="xl" />
         </>}
-    </div>
+
+
+    </Container>
   );
 };
 
