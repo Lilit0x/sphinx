@@ -3,6 +3,7 @@ import Head from 'next/head';
 import { MantineProvider } from '@mantine/core';
 import { ApplicationContainer } from '@/app/components/ApplicationContainer';
 import { Notifications } from '@mantine/notifications';
+import { ModalsProvider } from '@mantine/modals';
 
 export default function App(props: AppProps) {
   const { Component, pageProps } = props;
@@ -22,10 +23,12 @@ export default function App(props: AppProps) {
           colorScheme: 'light',
         }}
       >
-        <Notifications position="top-center" zIndex={2077}/>
-        <ApplicationContainer>
-          <Component {...pageProps} />
-        </ApplicationContainer>
+        <Notifications position="top-center" zIndex={2077} />
+        <ModalsProvider>
+          <ApplicationContainer>
+            <Component {...pageProps} />
+          </ApplicationContainer>
+        </ModalsProvider>
       </MantineProvider>
     </>
   );

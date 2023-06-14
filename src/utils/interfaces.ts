@@ -23,3 +23,11 @@ export enum Classes {
   SS2 = "Senior Secondary School 2",
   SS3 = "Senior Secondary School 3"
 }
+
+export interface IExam extends IQuestionDoc {
+  duration: number,
+  subjectTeacherName: string,
+  subject: string,
+  uploaderName: string,
+  class: Classes,
+}

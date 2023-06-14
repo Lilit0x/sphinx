@@ -1,7 +1,7 @@
 "use client";
 import { useState } from 'react';
-import { useForm, isNotEmpty, isEmail, hasLength } from '@mantine/form';
-import { Button, Group, TextInput, Box, MultiSelect, FileInput, rem } from '@mantine/core';
+import { useForm, isNotEmpty, isEmail, hasLength, isInRange } from '@mantine/form';
+import { Button, Group, TextInput, Box, MultiSelect, FileInput, rem, NumberInput } from '@mantine/core';
 import { IconCheck, IconUpload, IconX } from '@tabler/icons-react';
 
 import { Classes } from '@/utils/interfaces';
@@ -15,6 +15,7 @@ const Uploader = () => {
 			subject: '',
 			email: '',
 			uploaderName: '',
+			duration: 30,
 		},
 
 		validate: {
@@ -22,6 +23,7 @@ const Uploader = () => {
 			subject: isNotEmpty('Enter subject name'),
 			email: isEmail('Invalid email'),
 			uploaderName: hasLength({ min: 2, max: 30 }, 'Name must be 2-30 characters long'),
+			duration: isInRange({ min: 20, max: 100 }, 'Duration must be between 20 and 100 minutes'),
 		},
 	});
 
@@ -78,7 +80,7 @@ const Uploader = () => {
 				{...form.getInputProps('email')}
 			/>
 			<TextInput
-				label="Uplaoder Name"
+				label="Uploader Name"
 				placeholder="Name of the teacher uploading the file"
 				withAsterisk
 				mt="md"
@@ -95,7 +97,15 @@ const Uploader = () => {
 				withAsterisk
 			/>
 
-			<FileInput
+			<NumberInput
+        label="Exam Duration"
+        placeholder="20"
+        withAsterisk
+        mt="md"
+        {...form.getInputProps('duration')}
+      />
+
+		<FileInput
       placeholder="Pick a .txt file"
 			mt="md"
       label="Question File"
