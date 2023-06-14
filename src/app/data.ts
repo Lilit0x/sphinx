@@ -38,6 +38,7 @@ export const quiz = {
 
 export const papers: IExam[] = [
   {
+    id: "one",
     totalQuestions: quiz.totalQuestions,
     questions: quiz.questions.map((q, idx) => {
       const correctAnswer = q.answers.findIndex(ans => ans === q.correctAnswer);
@@ -50,6 +51,7 @@ export const papers: IExam[] = [
     class: Classes.Pry1
   },
   {
+    id: "two",
     totalQuestions: quiz.totalQuestions,
     questions: quiz.questions.map((q, idx) => {
       const correctAnswer = q.answers.findIndex(ans => ans === q.correctAnswer);
@@ -63,6 +65,7 @@ export const papers: IExam[] = [
   },
 
   {
+    id: "three",
     totalQuestions: quiz.totalQuestions,
     questions: quiz.questions.map((q, idx) => {
       const correctAnswer = q.answers.findIndex(ans => ans === q.correctAnswer);
@@ -75,6 +78,7 @@ export const papers: IExam[] = [
     class: Classes.Pry5
   },
   {
+    id: "four",
     totalQuestions: quiz.totalQuestions,
     questions: quiz.questions.map((q, idx) => {
       const correctAnswer = q.answers.findIndex(ans => ans === q.correctAnswer);
@@ -87,6 +91,7 @@ export const papers: IExam[] = [
     class: Classes.Pry4
   },
   {
+    id: "five",
     totalQuestions: quiz.totalQuestions,
     questions: quiz.questions.map((q, idx) => {
       const correctAnswer = q.answers.findIndex(ans => ans === q.correctAnswer);

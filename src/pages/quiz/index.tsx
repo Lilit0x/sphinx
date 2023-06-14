@@ -41,7 +41,7 @@ const Uploader = () => {
     labels: { confirm: 'Proceed', cancel: 'Back' },
     onCancel: () => console.log('Cancel'),
     onConfirm: () => {
-      router.push('/quiz/cbt')
+      router.push(`/quiz/${selectedExamObj?.id}`)
     },
   });
 
