@@ -1,23 +1,21 @@
-"use client";
+"use client"
 
-import { createStyles, Text, Card, RingProgress, Group, rem } from '@mantine/core';
-import { CountdownCircleTimer } from 'react-countdown-circle-timer'
+import { Card, createStyles, Group, rem, Text } from "@mantine/core"
+import { CountdownCircleTimer } from "react-countdown-circle-timer"
 
 interface CountDownProps {
-  duration: number,
+  duration: number
 }
 
 const renderTime = ({ remainingTime }: { remainingTime: number }) => {
   if (remainingTime === 0) {
-    return <div className="timer">Time Up</div>;
-  } else {
-    const minutes = Math.floor(remainingTime / 60)
-    const seconds = remainingTime % 60
-
-    return `${minutes}:${seconds}`
+    return <div className="timer">Time Up</div>
   }
-}
+  const minutes = Math.floor(remainingTime / 60)
+  const seconds = remainingTime % 60
 
+  return `${minutes}:${seconds}`
+}
 
 const UrgeWithPleasureComponent = ({ duration }: CountDownProps) => (
   <CountdownCircleTimer
@@ -27,7 +25,7 @@ const UrgeWithPleasureComponent = ({ duration }: CountDownProps) => (
     duration={duration}
     colors={["#004777", "#F7B801", "#A30000", "#A30000"]}
     colorsTime={[duration / 2, duration / 4, duration / 8, duration / 10]}
-    onComplete={() => {}}
+    // onComplete={() => {}}
   >
     {renderTime}
   </CountdownCircleTimer>
@@ -35,55 +33,55 @@ const UrgeWithPleasureComponent = ({ duration }: CountDownProps) => (
 
 const useStyles = createStyles((theme) => ({
   card: {
-    backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
+    backgroundColor: theme.colorScheme === "dark" ? theme.colors.dark[7] : theme.white,
   },
 
   label: {
-    fontFamily: `Greycliff CF, ${theme.fontFamily}`,
+    fontFamily: `Greycliff CF`,
     fontWeight: 700,
     lineHeight: 1,
   },
 
   lead: {
-    fontFamily: `Greycliff CF, ${theme.fontFamily}`,
+    fontFamily: `Greycliff CF`,
     fontWeight: 700,
     fontSize: rem(22),
     lineHeight: 1,
   },
 
   inner: {
-    display: 'flex',
+    display: "flex",
 
-    [theme.fn.smallerThan('xs')]: {
-      flexDirection: 'column',
+    [theme.fn.smallerThan("xs")]: {
+      flexDirection: "column",
     },
   },
 
   ring: {
     flex: 1,
-    display: 'flex',
-    justifyContent: 'flex-end',
+    display: "flex",
+    justifyContent: "flex-end",
 
-    [theme.fn.smallerThan('xs')]: {
-      justifyContent: 'center',
+    [theme.fn.smallerThan("xs")]: {
+      justifyContent: "center",
       marginTop: theme.spacing.md,
     },
   },
-}));
+}))
 
 interface StatsRingCardProps {
-  title?: string;
-  completed: number;
-  total: number;
+  title?: string
+  completed: number
+  total: number
   stats: {
-    value: number;
-    label: string;
-  }[];
+    value: number
+    label: string
+  }[]
   duration: number
 }
 
-export function ExamStats({ title, completed, total, stats, duration }: StatsRingCardProps) {
-  const { classes, theme } = useStyles();
+export function ExamStats({ title, completed, stats, duration }: StatsRingCardProps) {
+  const { classes } = useStyles()
   const items = stats.map((stat) => (
     <div key={stat.label}>
       <Text className={classes.label}>{stat.value}</Text>
@@ -91,7 +89,7 @@ export function ExamStats({ title, completed, total, stats, duration }: StatsRin
         {stat.label}
       </Text>
     </div>
-  ));
+  ))
 
   return (
     <Card withBorder p="xl" radius="md" className={classes.card}>
@@ -116,5 +114,5 @@ export function ExamStats({ title, completed, total, stats, duration }: StatsRin
         </div>
       </div>
     </Card>
-  );
+  )
 }

@@ -3,7 +3,7 @@
 // import PizZip from 'pizzip';
 // import PizZipUtils from 'pizzip/utils/index.js';
 
-import { IQuestion, IQuestionDoc } from "./interfaces";
+import { IQuestion, IQuestionDoc } from "./interfaces"
 
 // const loadFile = (url: string, callback: (err: Error, data: string) => void) => {
 //   PizZipUtils.getBinaryContent(url, callback);
@@ -34,15 +34,23 @@ import { IQuestion, IQuestionDoc } from "./interfaces";
 
 export const extractQuestions = (content: string): IQuestionDoc => {
   ///Delimeter for questions is 10 "-"
-  const questionsArr = content.split('==========').filter(q => q.length !== 0);
+  const questionsArr = content.split("==========").filter((q) => q.length !== 0)
   console.log({ questionsArr })
   const questions: IQuestion[] = questionsArr.map((q, idx) => {
-    let [question, answers, rightAnswer] = q.trim().split('\r');
-    question = question.slice(2).trim();
-    const answersArr = answers.slice(9).split('==').map(answer => answer.trim())
-    const correctAnswer = rightAnswer.trim().split(':')[1]?.trim();
-    console.log({ question, answersArr, correctAnswer })
-    return { id: idx, answers: answersArr, question, correctAnswer: parseInt(correctAnswer) - 1 }
+    const [question, answers, rightAnswer] = q.trim().split("\r")
+    const newQuestion = question.slice(2).trim()
+    const answersArr = answers
+      .slice(9)
+      .split("==")
+      .map((answer) => answer.trim())
+    const correctAnswer = rightAnswer.trim().split(":")[1]?.trim()
+    console.log({ newQuestion, answersArr, correctAnswer })
+    return {
+      id: idx,
+      answers: answersArr,
+      question: newQuestion,
+      correctAnswer: Number(correctAnswer) - 1,
+    }
   })
 
   return { totalQuestions: questions.length, questions }
