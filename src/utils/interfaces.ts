@@ -25,7 +25,7 @@ export enum Classes {
 }
 
 export interface IExam extends IQuestionDoc {
-  id: string,
+  id?: string,
   duration: number,
   subjectTeacherName: string,
   subject: string,

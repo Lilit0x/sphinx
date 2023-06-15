@@ -4,8 +4,9 @@ import { MantineProvider } from '@mantine/core';
 import { ApplicationContainer } from '@/app/components/ApplicationContainer';
 import { Notifications } from '@mantine/notifications';
 import { ModalsProvider } from '@mantine/modals';
+import dynamic from 'next/dynamic';
 
-export default function App(props: AppProps) {
+function App(props: AppProps) {
   const { Component, pageProps } = props;
 
   return (
@@ -21,6 +22,7 @@ export default function App(props: AppProps) {
         theme={{
           /** Put your mantine theme override here */
           colorScheme: 'light',
+          loader: 'bars'
         }}
       >
         <Notifications position="top-center" zIndex={2077} />
@@ -33,3 +35,7 @@ export default function App(props: AppProps) {
     </>
   );
 }
+
+export default dynamic(() => Promise.resolve(App), {
+  ssr: false,
+});
