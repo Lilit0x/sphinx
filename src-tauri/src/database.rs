@@ -14,11 +14,10 @@ pub fn initialize_database(app_handle: &AppHandle) -> Result<Connection, rusqlit
         .expect("The app data directory should exist.");
     fs::create_dir_all(&app_dir).expect("The app data directory should be created.");
     let sqlite_path = app_dir.join("al_qalam_db.sqlite");
-    println!("{:?}", sqlite_path);
     let mut db = Connection::open(sqlite_path)?;
 
     let mut user_pragma = db.prepare("PRAGMA user_version")?;
-    let existing_user_version: u32 = user_pragma.query_row([], |row| Ok(row.get(0)?))?;
+    let existing_user_version: u32 = user_pragma.query_row([], |row| row.get(0))?;
     drop(user_pragma);
 
     upgrade_database_if_needed(&mut db, existing_user_version)?;
