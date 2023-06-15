@@ -1,16 +1,25 @@
 "use client"
-import { Box, Button, Group, MultiSelect, Text, TextInput } from "@mantine/core"
+import {
+  Box,
+  Button,
+  Center,
+  Group,
+  Loader,
+  NativeSelect,
+  Text,
+  TextInput,
+} from "@mantine/core"
 import { hasLength, useForm } from "@mantine/form"
 import { modals } from "@mantine/modals"
 import { notifications } from "@mantine/notifications"
 import { IconX } from "@tabler/icons-react"
+import { invoke } from "@tauri-apps/api"
 import { useRouter } from "next/router"
 import { useEffect, useState } from "react"
 
-import { papers } from "@/app/data"
-import { Classes, IExam } from "@/utils/interfaces"
+import { Classes, IDatabaseExam, IExam, IQuestion } from "@/utils/interfaces"
 
-const Uploader = () => {
+const StartExamInfo = () => {
   const router = useRouter()
 
   const form = useForm({
@@ -25,16 +34,17 @@ const Uploader = () => {
     },
   })
 
-  const [selectedClass, setClass] = useState<string[]>([])
+  const [selectedClass, setClass] = useState<string>("")
   const [exams, setExams] = useState<IExam[]>([])
   const [loading, setLoading] = useState<boolean>(false)
-  const [selectedExam, setSelectedExam] = useState<string[]>([])
-  const selectedExamObj = exams.find(
-    (exam) => exam.subject === selectedExam[0] && exam.class === selectedClass[0],
-  )
+  const [selectedExam, setSelectedExam] = useState<string>("")
 
-  const openModal = () =>
-    modals.openConfirmModal({
+  const openModal = () => {
+    const selectedExamObj = exams.find(
+      (exam) => exam.subject === selectedExam && exam.class === selectedClass,
+    )
+    console.log({ selectedExamObj })
+    return modals.openConfirmModal({
       title: "Start Exam",
       children: (
         <Text size="sm">
@@ -44,7 +54,6 @@ const Uploader = () => {
       ),
       labels: { confirm: "Proceed", cancel: "Back" },
       onCancel: () => console.log("Cancel"),
-      // @typescript-eslint/no-misused-promises
       onConfirm: async () => {
         try {
           if (selectedExamObj && selectedExamObj?.id) {
@@ -55,6 +64,7 @@ const Uploader = () => {
         }
       },
     })
+  }
 
   const handleFormSubmit = ({
     firstName,
@@ -63,8 +73,8 @@ const Uploader = () => {
     firstName: string
     lastName: string
   }) => {
-    console.log({ lastName, firstName })
-    if (selectedClass.length < 1) {
+    console.log({ firstName, lastName })
+    if (selectedClass.length === 0) {
       return notifications.show({
         message: "Please select a class",
         title: "Error",
@@ -72,22 +82,7 @@ const Uploader = () => {
         icon: <IconX />,
       })
     }
-    if (selectedClass.length > 1) {
-      return notifications.show({
-        message: "Please select only one class",
-        title: "Error",
-        color: "red",
-        icon: <IconX />,
-      })
-    }
-    if (selectedExam.length > 1) {
-      return notifications.show({
-        message: "Please select only one exam",
-        title: "Error",
-        color: "red",
-        icon: <IconX />,
-      })
-    }
+
     if (selectedExam.length < 1) {
       return notifications.show({
         message: "Please select an exam",
@@ -101,27 +96,44 @@ const Uploader = () => {
   }
 
   useEffect(() => {
-    if (selectedClass.length > 1) {
-      return notifications.show({
-        message: "Please select only one class",
-        title: "Error",
-        color: "red",
-        icon: <IconX />,
+    const fetchExamPapers = async (selectedClass: string) => {
+      const papers = await invoke<IDatabaseExam[]>("get_exams_by_class", {
+        class: selectedClass,
       })
+      return papers.map(
+        (paper) =>
+          ({
+            ...paper,
+            questions: JSON.parse(paper.questions) as IQuestion[],
+          } as IExam),
+      )
     }
+
     if (selectedClass.length > 0) {
       setLoading(true)
       notifications.show({
-        message: `Fetching Exam Questions for ${selectedClass[0]}`,
+        message: `Fetching Exam Questions for ${selectedClass}`,
         title: "Questions",
         color: "yellow",
+        loading: true,
       })
-      const examPapers = papers.filter((paper) => {
-        return paper.class === selectedClass[0]
-      })
-      setExams(examPapers)
+
+      fetchExamPapers(selectedClass)
+        .then((values) => {
+          console.log({ values })
+          setExams(values)
+          setLoading(false)
+        })
+        .catch((err: string) => {
+          return notifications.show({
+            message: err,
+            title: "Error",
+            color: "red",
+            icon: <IconX />,
+          })
+        })
     }
-  }, [selectedClass, loading])
+  }, [selectedClass])
 
   return (
     <Box
@@ -132,46 +144,57 @@ const Uploader = () => {
         handleFormSubmit(values)
       })}
     >
-      <TextInput
-        label="Firstname"
-        placeholder="Yusrah"
-        withAsterisk
-        mt="md"
-        {...form.getInputProps("firstName")}
-      />
-      <TextInput
-        label="Surname"
-        placeholder="Seriki"
-        withAsterisk
-        mt="md"
-        {...form.getInputProps("lastName")}
-      />
+      {loading ? (
+        <Center h={300} mx="auto">
+          <Loader color="orange" variant="bars" />
+        </Center>
+      ) : (
+        <>
+          <TextInput
+            label="Firstname"
+            placeholder="Yusrah"
+            withAsterisk
+            mt="md"
+            {...form.getInputProps("firstName")}
+          />
+          <TextInput
+            label="Surname"
+            placeholder="Seriki"
+            withAsterisk
+            mt="md"
+            {...form.getInputProps("lastName")}
+          />
 
-      <MultiSelect
-        data={Object.values(Classes)}
-        value={selectedClass}
-        onChange={setClass}
-        placeholder="Class you belong to"
-        mt="md"
-        label="Class"
-        withAsterisk
-      />
+          <NativeSelect
+            data={["Select a class", ...Object.keys(Classes)]}
+            value={selectedClass}
+            onChange={(event) => setClass(event.target.value)}
+            placeholder="Class you belong to"
+            mt="md"
+            label="Class"
+            withAsterisk
+          />
 
-      <MultiSelect
-        disabled={exams.length === 0}
-        data={exams.map((exam) => ({ value: exam.subject, label: exam.subject }))}
-        value={selectedExam}
-        onChange={setSelectedExam}
-        placeholder="Select A Paper"
-        mt="md"
-        label="Select Exam"
-        withAsterisk
-      />
-      <Group position="right" mt="md">
-        <Button type="submit">Start Exam</Button>
-      </Group>
+          <NativeSelect
+            disabled={exams.length === 0}
+            data={[
+              { value: "", label: "Select an exam" },
+              ...exams.map((exam) => ({ value: exam.subject, label: exam.subject })),
+            ]}
+            value={selectedExam}
+            onChange={(event) => setSelectedExam(event.target.value)}
+            placeholder="Select A Paper"
+            mt="md"
+            label="Select Exam"
+            withAsterisk
+          />
+          <Group position="right" mt="md">
+            <Button type="submit">Start Exam</Button>
+          </Group>
+        </>
+      )}
     </Box>
   )
 }
 
-export default Uploader
+export default StartExamInfo

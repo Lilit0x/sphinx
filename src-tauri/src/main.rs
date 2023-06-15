@@ -21,12 +21,36 @@ fn upload_exam(app_handle: AppHandle, exam: Exam) -> Result<String, String> {
     }
 }
 
+#[tauri::command]
+fn get_exams_by_class(app_handle: AppHandle, class: String) -> Result<Vec<Exam>, String> {
+    match app_handle.db(|db| database::get_exams_by_class(class, db)) {
+        Ok(exams) => Ok(exams),
+        Err(err) => Err(err.to_string()),
+    }
+}
+
+#[tauri::command]
+fn get_exam_by_id(app_handle: AppHandle, id: i8) -> Result<Vec<Exam>, String> {
+    match app_handle.db(|db| database::get_exam_by_id(id, db)) {
+        Ok(exams) => Ok(exams),
+        Err(err) => {
+            println!("{:?}", err.to_string());
+            Err(err.to_string())
+        }
+    }
+}
+
 fn main() {
     tauri::Builder::default()
         .manage(AppState {
             db: Default::default(),
         })
-        .invoke_handler(tauri::generate_handler![my_custom_command, upload_exam])
+        .invoke_handler(tauri::generate_handler![
+            my_custom_command,
+            upload_exam,
+            get_exams_by_class,
+            get_exam_by_id
+        ])
         .setup(|app| {
             let handle = app.handle();
 

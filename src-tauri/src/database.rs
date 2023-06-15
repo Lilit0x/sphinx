@@ -71,6 +71,7 @@ pub struct Exam {
     #[serde(rename = "totalQuestions")]
     total_questions: i32,
     questions: String,
+    #[serde(rename = "createdAt")]
     created_at: Option<String>,
 }
 
@@ -87,15 +88,50 @@ pub fn add_exam(exam: Exam, db: &Connection) -> Result<(), rusqlite::Error> {
     Ok(())
 }
 
-// pub fn get_all(db: &Connection) -> Result<Vec<String>, rusqlite::Error> {
-//     let mut statement = db.prepare("SELECT * FROM items")?;
-//     let mut rows = statement.query([])?;
-//     let mut items = Vec::new();
-//     while let Some(row) = rows.next()? {
-//         let title: String = row.get("title")?;
+pub fn get_exams_by_class(class: String, db: &Connection) -> Result<Vec<Exam>, rusqlite::Error> {
+    let mut statement = db.prepare("SELECT * FROM exams WHERE class = :class")?;
+    let exam_iter = statement.query_map(named_params! { ":class": class }, |row| {
+        Ok(Exam {
+            id: Some(row.get("id")?),
+            duration: row.get("duration")?,
+            subject_teacher_name: row.get("subject_teacher_name")?,
+            uploader_name: row.get("uploader_name")?,
+            subject: row.get("subject")?,
+            class: row.get("class")?,
+            total_questions: row.get("total_questions")?,
+            questions: row.get("questions")?,
+            created_at: Some(row.get("created_at")?),
+        })
+    })?;
 
-//         items.push(title);
-//     }
+    let mut exams = Vec::new();
+    for row in exam_iter {
+        exams.push(row.unwrap());
+    }
 
-//     Ok(items)
-// }
+    Ok(exams)
+}
+
+pub fn get_exam_by_id(id: i8, db: &Connection) -> Result<Vec<Exam>, rusqlite::Error> {
+    let mut statement = db.prepare("SELECT * FROM exams WHERE id = :id")?;
+    let exam_iter = statement.query_map(named_params! { ":id": id }, |row| {
+        Ok(Exam {
+            id: Some(row.get("id")?),
+            duration: row.get("duration")?,
+            subject_teacher_name: row.get("subject_teacher_name")?,
+            uploader_name: row.get("uploader_name")?,
+            subject: row.get("subject")?,
+            class: row.get("class")?,
+            total_questions: row.get("total_questions")?,
+            questions: row.get("questions")?,
+            created_at: Some(row.get("created_at")?),
+        })
+    })?;
+
+    let mut exams = Vec::new();
+    for row in exam_iter {
+        exams.push(row.unwrap());
+    }
+
+    Ok(exams)
+}

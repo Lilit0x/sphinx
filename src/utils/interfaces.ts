@@ -32,3 +32,7 @@ export interface IExam extends IQuestionDoc {
   uploaderName: string
   class: Classes
 }
+export interface IDatabaseExam extends Omit<IExam, "questions"> {
+  questions: string
+  id: string
+}

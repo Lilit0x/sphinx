@@ -9,14 +9,15 @@ import {
   Skeleton,
   useMantineTheme,
 } from "@mantine/core"
+import { notifications } from "@mantine/notifications"
+import { IconX } from "@tabler/icons-react"
+import { invoke } from "@tauri-apps/api"
 import { useRouter } from "next/router"
 import React, { useEffect, useState } from "react"
 
 import EndPage from "@/app/components/EndPage"
 import { ExamStats } from "@/app/components/ExamInfo"
-import { IExam, IQuestion } from "@/utils/interfaces"
-
-import { papers } from "../../app/data"
+import { IDatabaseExam, IExam, IQuestion } from "@/utils/interfaces"
 
 const PRIMARY_COL_HEIGHT = rem(300)
 interface PageDetailsProps {
@@ -140,10 +141,27 @@ const PageDetails = ({ exam }: PageDetailsProps) => {
 const Page = () => {
   const router = useRouter()
   const [exam, setExam] = useState<IExam | null>(null)
+
+  const getExamById = async (id: number) => {
+    const [exam] = await invoke<IDatabaseExam[]>("get_exam_by_id", { id })
+    return { ...exam, questions: JSON.parse(exam.questions) as IQuestion[] } as IExam
+  }
+
   useEffect(() => {
-    const exam =
-      papers.find((paper) => paper.id === router.query.examId) ?? ({} as IExam)
-    setExam(exam)
+    console.log(router.query)
+    getExamById(Number(router.query.examId as string))
+      .then((exam) => {
+        setExam(exam)
+      })
+      .catch((err: string) => {
+        //TODO, display error page and refresh
+        return notifications.show({
+          message: `${err}. \nCould not fetch exam details. Please refresh`,
+          title: "Error",
+          color: "red",
+          icon: <IconX />,
+        })
+      })
   }, [router])
 
   return (

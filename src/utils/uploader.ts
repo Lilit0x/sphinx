@@ -44,7 +44,6 @@ export const extractQuestions = (content: string): IQuestionDoc => {
       .split("==")
       .map((answer) => answer.trim())
     const correctAnswer = rightAnswer.trim().split(":")[1]?.trim()
-    console.log({ newQuestion, answersArr, correctAnswer })
     return {
       id: idx,
       answers: answersArr,
@@ -52,6 +51,7 @@ export const extractQuestions = (content: string): IQuestionDoc => {
       correctAnswer: Number(correctAnswer) - 1,
     }
   })
+  console.log({ fmtqs: questions })
 
   return { totalQuestions: questions.length, questions }
 }
