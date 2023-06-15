@@ -2,12 +2,11 @@ import { MantineProvider } from "@mantine/core"
 import { ModalsProvider } from "@mantine/modals"
 import { Notifications } from "@mantine/notifications"
 import { AppProps } from "next/app"
-import dynamic from "next/dynamic"
 import Head from "next/head"
 
 import { ApplicationContainer } from "@/app/components/ApplicationContainer"
 
-function App(props: AppProps) {
+export default function App(props: AppProps) {
   return (
     <>
       <Head>
@@ -37,7 +36,3 @@ function App(props: AppProps) {
     </>
   )
 }
-
-export default dynamic(() => Promise.resolve(App), {
-  ssr: false,
-})
