@@ -23,16 +23,16 @@ export const ApplicationContainer = ({children}: Props) => {
             }
         }}
         fixed
-        footer={
-            <Footer height={60} p="md">
-                <Group position="apart" spacing="xl">
-                    <Text size="sm"><span style={{fontWeight: "bolder"}}
-                    >🕛 List Time: </span>0h 25m</Text>
-                    <Text size="sm"><span style={{fontWeight: "bolder"}}
-                    >🎆 End Time: </span>5:36pm</Text>
-                </Group>
-            </Footer>
-        }
+        // footer={
+        //     <Footer height={60} p="md">
+        //         <Group position="apart" spacing="xl">
+        //             <Text size="sm"><span style={{fontWeight: "bolder"}}
+        //             >🕛 List Time: </span>0h 25m</Text>
+        //             <Text size="sm"><span style={{fontWeight: "bolder"}}
+        //             >🎆 End Time: </span>5:36pm</Text>
+        //         </Group>
+        //     </Footer>
+        // }
         header={
             <Header height={70} p="md">
                 <div style={{display: "flex", alignItems: 'center', height: "100%"}}>

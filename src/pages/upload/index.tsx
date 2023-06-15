@@ -3,12 +3,14 @@ import { useState } from 'react';
 import { useForm, isNotEmpty, isEmail, hasLength, isInRange } from '@mantine/form';
 import { Button, Group, TextInput, Box, MultiSelect, FileInput, rem, NumberInput } from '@mantine/core';
 import { IconCheck, IconUpload, IconX } from '@tabler/icons-react';
+import { invoke } from '@tauri-apps/api'
 
 import { Classes } from '@/utils/interfaces';
 import { notifications } from '@mantine/notifications';
 import { extractQuestions } from '@/utils/uploader';
 
 const Uploader = () => {
+	invoke<string>('my_custom_command').then((value) => console.log({ value })).catch(err => console.log(err))
 	const form = useForm({
 		initialValues: {
 			subjectTeacherName: '',
@@ -37,27 +39,27 @@ const Uploader = () => {
 		uploaderName: string;
 	}) => {
 		console.log({ subject, subjectTeacherName, email, uploaderName });
-		if(selectedClass.length < 1) {
+		if (selectedClass.length < 1) {
 			return notifications.show({ message: 'Please select a class', title: 'Error', color: 'red', icon: <IconX /> })
 		}
-		if(!file) {
+		if (!file) {
 			return notifications.show({ message: 'Please select a file', title: 'Error', color: 'red', icon: <IconX /> })
 		}
 
-		  const reader = new FileReader()
+		const reader = new FileReader()
 
-      reader.onabort = () => console.log('file reading was aborted')
-      reader.onerror = () => console.log('file reading has failed')
-      reader.onload = () => {
-        const binaryStr = reader.result
-				const questions = extractQuestions(binaryStr as string)
-				const payload = { subject, subjectTeacherName, email, uploaderName, questions }
-        console.log({ payload })
+		reader.onabort = () => console.log('file reading was aborted')
+		reader.onerror = () => console.log('file reading has failed')
+		reader.onload = () => {
+			const binaryStr = reader.result
+			const questions = extractQuestions(binaryStr as string)
+			const payload = { subject, subjectTeacherName, email, uploaderName, questions }
+			console.log({ payload })
 
-				return notifications.show({ message: 'File Uploaded Successfully', title: 'Success', color: 'green', icon: <IconCheck /> })
-      }
-      reader.readAsText(file)
-		
+			return notifications.show({ message: 'File Uploaded Successfully', title: 'Success', color: 'green', icon: <IconCheck /> })
+		}
+		reader.readAsText(file)
+
 	}
 
 	return (
@@ -98,24 +100,24 @@ const Uploader = () => {
 			/>
 
 			<NumberInput
-        label="Exam Duration"
-        placeholder="20"
-        withAsterisk
-        mt="md"
-        {...form.getInputProps('duration')}
-      />
+				label="Exam Duration"
+				placeholder="20"
+				withAsterisk
+				mt="md"
+				{...form.getInputProps('duration')}
+			/>
 
-		<FileInput
-      placeholder="Pick a .txt file"
-			mt="md"
-      label="Question File"
-      withAsterisk
-			value={file} 
-			onChange={setFile}
-			disabled={!!file}
-			accept="text/plain"
-			icon={<IconUpload size={rem(14)} />}
-    />
+			<FileInput
+				placeholder="Pick a .txt file"
+				mt="md"
+				label="Question File"
+				withAsterisk
+				value={file}
+				onChange={setFile}
+				disabled={!!file}
+				accept="text/plain"
+				icon={<IconUpload size={rem(14)} />}
+			/>
 
 			<Group position="right" mt="md">
 				<Button type="submit">Submit</Button>

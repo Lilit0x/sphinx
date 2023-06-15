@@ -1,7 +1,7 @@
 import { Button, Center, Container, Flex } from '@mantine/core';
 import Link from 'next/link';
 
-export default function HomePage() {
+const HomePage = () => {
   return (
     <Container>
       <Center>
@@ -26,3 +26,5 @@ export default function HomePage() {
 
   );
 }
+
+export default HomePage
