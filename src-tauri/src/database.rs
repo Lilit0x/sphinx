@@ -40,7 +40,7 @@ pub fn upgrade_database_if_needed(
         tx.execute_batch(
             "
       CREATE TABLE exams (
-        id INTEGER PRiMARY KEY,
+        id INTEGER PRIMARY KEY,
         duration INTEGER NOT NULL,
         subject_teacher_name TEXT NOT NULL,
         subject TEXT NOT NULL,
@@ -49,7 +49,19 @@ pub fn upgrade_database_if_needed(
         total_questions INTEGER NOT NULL,
         questions TEXT NOT NULL,
         created_at DATE DEFAULT CURRENT_TIMESTAMP
-      );",
+      );
+      CREATE TABLE results (
+        id INTEGER PRIMARY KEY,
+        student_name TEXT NOT NULL,
+        started_at DATE DEFAULT CURRENT_TIMESTAMP,
+        score INTEGER,
+        correct_answers INTEGER,
+        wrong_answers INTEGER,
+        submitted_at DATE,
+        exam_id INTEGER NOT NULL,
+        FOREIGN KEY (exam_id) REFERENCES exams(id)
+      );
+      ",
         )?;
 
         tx.commit()?;
@@ -75,6 +87,23 @@ pub struct Exam {
     created_at: Option<String>,
 }
 
+#[derive(Debug, Clone, Deserialize, Serialize)]
+pub struct ExamResult {
+    id: Option<i8>,
+    #[serde(rename = "studentName")]
+    student_name: String,
+    #[serde(rename = "startedAt")]
+    started_at: Option<String>,
+    score: Option<i32>,
+    #[serde(rename = "correctAnswers")]
+    correct_answers: Option<i32>,
+    #[serde(rename = "wrongAnswers")]
+    wrong_answers: Option<i32>,
+    #[serde(rename = "examId")]
+    exam_id: i8,
+    #[serde(rename = "submittedAt")]
+    submitted_at: Option<String>,
+}
 // pub fn add_item(title: &str, db: &Connection) -> Result<(), rusqlite::Error> {
 //     let mut statement = db.prepare("INSERT INTO items (title) VALUES (@title)")?;
 //     statement.execute(named_params! { "@title": title })?;
@@ -134,4 +163,55 @@ pub fn get_exam_by_id(id: i8, db: &Connection) -> Result<Vec<Exam>, rusqlite::Er
     }
 
     Ok(exams)
+}
+
+pub fn initialize_result(
+    result: ExamResult,
+    db: &Connection,
+) -> Result<ExamResult, rusqlite::Error> {
+    let query = "INSERT INTO results 
+    (student_name, exam_id) 
+    VALUES (@student_name, @exam_id)";
+    let mut stmt = db.prepare(query)?;
+    stmt.execute(
+        named_params! { "@student_name": result.student_name, "@exam_id": result.exam_id },
+    )?;
+    let result_id = db.last_insert_rowid();
+    get_result_by_id(result_id, db)
+}
+
+pub fn get_result_by_id(id: i64, db: &Connection) -> Result<ExamResult, rusqlite::Error> {
+    let mut statement = db.prepare("SELECT * FROM results WHERE id = :id")?;
+    let results_iter = statement.query_map(named_params! { ":id": id }, |row| {
+        Ok(ExamResult {
+            id: Some(row.get("id")?),
+            student_name: row.get("student_name")?,
+            started_at: Some(row.get("started_at")?),
+            score: None,
+            correct_answers: None,
+            wrong_answers: None,
+            exam_id: row.get("exam_id")?,
+            submitted_at: None,
+        })
+    })?;
+
+    let mut results = Vec::new();
+    for row in results_iter {
+        results.push(row.unwrap());
+    }
+
+    Ok(results.first().unwrap().clone())
+}
+
+pub fn update_student_result(result: ExamResult, db: &Connection) -> Result<(), rusqlite::Error> {
+    let query = "UPDATE results 
+        SET  
+            score = :score,
+            correct_answers = :correct_answers,
+            wrong_answers = :wrong_answers,
+            submitted_at = CURRENT_TIMESTAMP
+        WHERE id = :id";
+    let mut stmt = db.prepare(query)?;
+    stmt.execute(named_params! { ":score": result.score, ":correct_answers": result.correct_answers, ":wrong_answers": result.wrong_answers, ":id": result.id })?;
+    Ok(())
 }

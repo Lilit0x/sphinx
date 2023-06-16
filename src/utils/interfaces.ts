@@ -36,3 +36,14 @@ export interface IDatabaseExam extends Omit<IExam, "questions"> {
   questions: string
   id: string
 }
+
+export interface IResult {
+  id: number
+  score?: number
+  wrongAnswers?: number
+  correctAnswers?: number
+  startedAt: string
+  submittedAt?: string
+  examId: number
+  studentName: string
+}

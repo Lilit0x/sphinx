@@ -39,7 +39,7 @@ const StartExamInfo = () => {
   const [loading, setLoading] = useState<boolean>(false)
   const [selectedExam, setSelectedExam] = useState<string>("")
 
-  const openModal = () => {
+  const openModal = (studentName: string) => {
     const selectedExamObj = exams.find(
       (exam) => exam.subject === selectedExam && exam.class === selectedClass,
     )
@@ -48,8 +48,8 @@ const StartExamInfo = () => {
       title: "Start Exam",
       children: (
         <Text size="sm">
-          You are about to start {selectedExam[0]} for {selectedClass[0]} and it lasts
-          for {selectedExamObj?.duration} minutes.
+          You are about to start {selectedExam} for {selectedClass} and it lasts for{" "}
+          {selectedExamObj?.duration} minutes.
         </Text>
       ),
       labels: { confirm: "Proceed", cancel: "Back" },
@@ -57,7 +57,7 @@ const StartExamInfo = () => {
       onConfirm: async () => {
         try {
           if (selectedExamObj && selectedExamObj?.id) {
-            await router.push(`/quiz/${selectedExamObj.id}`)
+            await router.push(`/quiz/${selectedExamObj.id}?name=${studentName}`)
           }
         } catch (err) {
           console.log(err)
@@ -73,7 +73,6 @@ const StartExamInfo = () => {
     firstName: string
     lastName: string
   }) => {
-    console.log({ firstName, lastName })
     if (selectedClass.length === 0) {
       return notifications.show({
         message: "Please select a class",
@@ -92,7 +91,7 @@ const StartExamInfo = () => {
       })
     }
 
-    openModal()
+    openModal(`${firstName} ${lastName}`)
   }
 
   useEffect(() => {

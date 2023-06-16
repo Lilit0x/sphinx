@@ -1,7 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use database::Exam;
+use database::{Exam, ExamResult};
 use state::{AppState, ServiceAccess};
 use tauri::{AppHandle, Manager, State};
 
@@ -33,10 +33,23 @@ fn get_exams_by_class(app_handle: AppHandle, class: String) -> Result<Vec<Exam>,
 fn get_exam_by_id(app_handle: AppHandle, id: i8) -> Result<Vec<Exam>, String> {
     match app_handle.db(|db| database::get_exam_by_id(id, db)) {
         Ok(exams) => Ok(exams),
-        Err(err) => {
-            println!("{:?}", err.to_string());
-            Err(err.to_string())
-        }
+        Err(err) => Err(err.to_string()),
+    }
+}
+
+#[tauri::command]
+fn start_exam(app_handle: AppHandle, result: ExamResult) -> Result<ExamResult, String> {
+    match app_handle.db(|db| database::initialize_result(result, db)) {
+        Ok(res) => Ok(res),
+        Err(err) => Err(err.to_string()),
+    }
+}
+
+#[tauri::command]
+fn finish_exam(app_handle: AppHandle, result: ExamResult) -> Result<String, String> {
+    match app_handle.db(|db| database::update_student_result(result, db)) {
+        Ok(_) => Ok("Updated Successfully".into()),
+        Err(err) => Err(err.to_string()),
     }
 }
 
@@ -49,7 +62,9 @@ fn main() {
             my_custom_command,
             upload_exam,
             get_exams_by_class,
-            get_exam_by_id
+            get_exam_by_id,
+            start_exam,
+            finish_exam,
         ])
         .setup(|app| {
             let handle = app.handle();

@@ -7,7 +7,7 @@ import {
   FileInput,
   Group,
   Loader,
-  MultiSelect,
+  NativeSelect,
   NumberInput,
   rem,
   TextInput,
@@ -47,7 +47,7 @@ const Uploader = () => {
       ),
     },
   })
-  const [selectedClass, setClass] = useState<string[]>([])
+  const [selectedClass, setClass] = useState<string>("")
   const [file, setFile] = useState<File | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
 
@@ -95,7 +95,7 @@ const Uploader = () => {
         totalQuestions: questions.totalQuestions,
         questions: questions.questions,
         duration,
-        class: selectedClass[0] as Classes,
+        class: selectedClass as Classes,
       }
       invoke<string>("upload_exam", {
         exam: { ...payload, questions: JSON.stringify(payload.questions) },
@@ -167,10 +167,10 @@ const Uploader = () => {
             {...form.getInputProps("uploaderName")}
           />
 
-          <MultiSelect
+          <NativeSelect
             data={Object.keys(Classes)}
             value={selectedClass}
-            onChange={setClass}
+            onChange={(event) => setClass(event.target.value)}
             placeholder="Intended class"
             mt="md"
             label="Class"

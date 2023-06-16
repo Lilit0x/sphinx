@@ -10,31 +10,39 @@ import {
   useMantineTheme,
 } from "@mantine/core"
 import { notifications } from "@mantine/notifications"
-import { IconX } from "@tabler/icons-react"
+import { IconCheck, IconX } from "@tabler/icons-react"
 import { invoke } from "@tauri-apps/api"
 import { useRouter } from "next/router"
 import React, { useEffect, useState } from "react"
 
 import EndPage from "@/app/components/EndPage"
 import { ExamStats } from "@/app/components/ExamInfo"
-import { IDatabaseExam, IExam, IQuestion } from "@/utils/interfaces"
+import { IDatabaseExam, IExam, IQuestion, IResult } from "@/utils/interfaces"
 
 const PRIMARY_COL_HEIGHT = rem(300)
 interface PageDetailsProps {
   exam: IExam
+  createdResult: IResult
 }
 
-const PageDetails = ({ exam }: PageDetailsProps) => {
+const PageDetails = ({ exam, createdResult }: PageDetailsProps) => {
+  const router = useRouter()
+
   const [activeQuestion, setActiveQuestion] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState<boolean>()
   const [checked, setChecked] = useState(false)
   const [selectedAnswerIndex, setSelectedAnswerIndex] = useState<number | null>(null)
   const [showResult, setShowResult] = useState(false)
-  const [, setResult] = useState({
+  const [result, setResult] = useState({
     score: 0,
     correctAnswers: 0,
     wrongAnswers: 0,
   })
+
+  const updateResult = async (result: IResult) => {
+    const res = await invoke<string>("finish_exam", { result })
+    return res
+  }
 
   //   Select and check answer
   const onAnswerSelected = (idx: number, correctAnswer: number) => {
@@ -56,7 +64,7 @@ const PageDetails = ({ exam }: PageDetailsProps) => {
       selectedAnswer
         ? {
             ...prev,
-            score: prev.score + 5,
+            score: prev.score + 1,
             correctAnswers: prev.correctAnswers + 1,
           }
         : {
@@ -68,7 +76,39 @@ const PageDetails = ({ exam }: PageDetailsProps) => {
       setActiveQuestion((prev) => prev + 1)
     } else {
       setActiveQuestion(0)
-      setShowResult(true)
+      notifications.show({
+        message: "Uploading Your Results...",
+        title: "Exams",
+        color: "yellow",
+        loading: true,
+      })
+      const payload = { ...createdResult, ...result }
+      updateResult(payload)
+        .then(() => {
+          notifications.show({
+            message: "Results uploaded successfully",
+            title: "Success",
+            color: "green",
+            icon: <IconCheck />,
+          })
+          setShowResult(true)
+          setTimeout(
+            () =>
+              router
+                .push("/")
+                .then()
+                .catch((err) => console.log(err)),
+            1000,
+          )
+        })
+        .catch((err: string) => {
+          return notifications.show({
+            message: err,
+            title: "Error",
+            color: "red",
+            icon: <IconX />,
+          })
+        })
     }
     setChecked(false)
   }
@@ -141,17 +181,38 @@ const PageDetails = ({ exam }: PageDetailsProps) => {
 const Page = () => {
   const router = useRouter()
   const [exam, setExam] = useState<IExam | null>(null)
+  const [result, setResult] = useState<IResult | null>(null)
 
   const getExamById = async (id: number) => {
     const [exam] = await invoke<IDatabaseExam[]>("get_exam_by_id", { id })
     return { ...exam, questions: JSON.parse(exam.questions) as IQuestion[] } as IExam
   }
 
+  const startExam = async (name: string, examId: number) => {
+    const result = await invoke<IResult>("start_exam", {
+      result: { examId, studentName: name },
+    })
+    return result
+  }
+
   useEffect(() => {
-    console.log(router.query)
+    const { name, examId } = router.query
+    console.log({ name, examId })
     getExamById(Number(router.query.examId as string))
       .then((exam) => {
-        setExam(exam)
+        startExam(name as string, Number(exam.id as string))
+          .then((res) => {
+            setResult(res)
+            setExam(exam)
+          })
+          .catch((err: string) => {
+            return notifications.show({
+              message: String(err),
+              title: "Error",
+              color: "red",
+              icon: <IconX />,
+            })
+          })
       })
       .catch((err: string) => {
         //TODO, display error page and refresh
@@ -166,8 +227,8 @@ const Page = () => {
 
   return (
     <Container my="md">
-      {exam && exam?.id ? (
-        <PageDetails exam={exam} />
+      {exam && exam?.id && result ? (
+        <PageDetails exam={exam} createdResult={result} />
       ) : (
         <>
           <Skeleton height={50} animate={true} circle mb="xl" />
@@ -179,5 +240,25 @@ const Page = () => {
     </Container>
   )
 }
+
+// export const getStaticProps = async (ctx: GetStaticPropsContext) => {
+//   const getExamById = async (id: number) => {
+//     const [exam] = await invoke<IDatabaseExam[]>("get_exam_by_id", { id })
+//     return { ...exam, questions: JSON.parse(exam.questions) as IQuestion[] } as IExam
+//   }
+
+//   const { params } = ctx;
+//   console.log({ params })
+
+//   try {
+//     const exam = await getExamById(Number(params?.examId))
+//     return { props: { exam } };
+//   } catch (err) {
+//     console.log(err)
+//     return {
+//       notFound: true,
+//     }
+//   }
+// }
 
 export default Page
