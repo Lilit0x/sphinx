@@ -168,7 +168,7 @@ const Uploader = () => {
           />
 
           <NativeSelect
-            data={Object.keys(Classes)}
+            data={["Select a class", ...Object.keys(Classes)]}
             value={selectedClass}
             onChange={(event) => setClass(event.target.value)}
             placeholder="Intended class"
