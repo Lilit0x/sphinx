@@ -15,7 +15,7 @@
     },
     "bundle": {
       "active": true,
-      "category": "DeveloperTool",
+      "category": "Education",
       "copyright": "",
       "deb": {
         "depends": []
@@ -28,8 +28,9 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.dev",
-      "longDescription": "",
+      "identifier": "com.shaqtum.www",
+      "publisher": "Lilit0x",
+      "longDescription": "A CBT Application for Al Qalam Academy. Teachers upload and student answer questions",
       "macOS": {
         "entitlements": null,
         "exceptionDomain": "",
